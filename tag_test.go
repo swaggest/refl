@@ -41,6 +41,11 @@ type (
 )
 
 func TestHasTaggedFields(t *testing.T) {
+	var i interface{ Do() }
+
+	assert.False(t, refl.HasTaggedFields(i, "json"))
+	assert.False(t, refl.HasTaggedFields(nil, "json"))
+
 	assert.True(t, refl.HasTaggedFields(new(structWithEmbedded), "json"))
 	assert.True(t, refl.HasTaggedFields(new(structWithTaggedEmbedded), "json"))
 	assert.False(t, refl.HasTaggedFields(new(structWithIgnoredEmbedded), "json"))

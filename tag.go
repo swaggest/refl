@@ -18,10 +18,15 @@ func HasTaggedFields(i interface{}, tagName string) bool {
 	return found
 }
 
+// WalkTaggedFieldFn defines callback.
 type WalkTaggedFieldFn func(v reflect.Value, sf reflect.StructField, tag string)
 
 // WalkTaggedFields iterates top level fields of structure including anonymous embedded fields.
 func WalkTaggedFields(v reflect.Value, f WalkTaggedFieldFn, tagName string) {
+	if v.Kind() == 0 {
+		return
+	}
+
 	t := v.Type()
 
 	for t.Kind() == reflect.Ptr {

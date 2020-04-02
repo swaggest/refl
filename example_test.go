@@ -51,5 +51,6 @@ func ExamplePopulateFieldsFromTags() {
 
 	fmt.Println(string(j))
 
-	// Output: {"Title":"Value","Desc":"...","Min":-1.23,"Max":10.1,"Limit":5,"Offset":2,"Deprecated":true,"Required":false}
+	// Output:
+	// {"Title":"Value","Desc":"...","Min":-1.23,"Max":10.1,"Limit":5,"Offset":2,"Deprecated":true,"Required":false}
 }

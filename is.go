@@ -82,6 +82,7 @@ func IsZero(v reflect.Value) bool {
 				return false
 			}
 		}
+
 		return true
 	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice, reflect.UnsafePointer:
 		return v.IsNil()
@@ -93,6 +94,7 @@ func IsZero(v reflect.Value) bool {
 				return false
 			}
 		}
+
 		return true
 	default:
 		// This should never happens, but will act as a safeguard for
