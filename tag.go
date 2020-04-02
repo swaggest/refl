@@ -47,7 +47,11 @@ func WalkTaggedFields(v reflect.Value, f WalkTaggedFieldFn, tagName string) {
 
 		if field.Anonymous {
 			if tag != "-" {
-				WalkTaggedFields(fieldVal.Addr(), f, tagName)
+				if fieldVal.CanAddr() {
+					fieldVal = fieldVal.Addr()
+				}
+
+				WalkTaggedFields(fieldVal, f, tagName)
 			}
 
 			continue

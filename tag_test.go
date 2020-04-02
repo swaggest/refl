@@ -41,6 +41,18 @@ type (
 )
 
 func TestHasTaggedFields(t *testing.T) {
+	type AnonymousField struct {
+		AnonProp int `json:"anonProp"`
+	}
+
+	type mixedStruct struct {
+		AnonymousField
+		FieldQuery int `query:"fieldQuery"`
+		FieldBody  int `json:"fieldBody"`
+	}
+
+	assert.True(t, refl.HasTaggedFields(mixedStruct{}, "json"))
+
 	var i interface{ Do() }
 
 	assert.False(t, refl.HasTaggedFields(i, "json"))
