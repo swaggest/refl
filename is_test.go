@@ -1,6 +1,7 @@
 package refl_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,4 +36,27 @@ type S struct {
 
 func TestFindEmbeddedSliceOrMap(t *testing.T) {
 	assert.NotNil(t, refl.FindEmbeddedSliceOrMap(S{}))
+}
+
+func TestIsZero(t *testing.T) {
+	type MyStruct struct {
+		S  string
+		SS struct {
+			I int
+		}
+	}
+
+	assert.True(t, refl.IsZero(reflect.ValueOf(0)))
+	assert.True(t, refl.IsZero(reflect.ValueOf(uint(0))))
+	assert.True(t, refl.IsZero(reflect.ValueOf(0.0)))
+	assert.True(t, refl.IsZero(reflect.ValueOf(complex128(0.0))))
+	assert.True(t, refl.IsZero(reflect.ValueOf("")))
+	assert.True(t, refl.IsZero(reflect.ValueOf(false)))
+	assert.True(t, refl.IsZero(reflect.ValueOf(([]int)(nil))))
+
+	assert.True(t, refl.IsZero(reflect.ValueOf([2]int{})))
+	assert.False(t, refl.IsZero(reflect.ValueOf([2]int{1})))
+
+	assert.True(t, refl.IsZero(reflect.ValueOf(MyStruct{})))
+	assert.False(t, refl.IsZero(reflect.ValueOf(MyStruct{S: "s"})))
 }
