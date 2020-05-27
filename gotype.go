@@ -36,11 +36,17 @@ func GoType(t reflect.Type) TypeString {
 
 	switch t.Kind() {
 	case reflect.Slice:
-		return "[]" + GoType(t.Elem())
+		if pkgPath == "" {
+			return "[]" + GoType(t.Elem())
+		}
 	case reflect.Ptr:
-		return "*" + GoType(t.Elem())
+		if pkgPath == "" {
+			return "*" + GoType(t.Elem())
+		}
 	case reflect.Map:
-		return "map[" + GoType(t.Key()) + "]" + GoType(t.Elem())
+		if pkgPath == "" {
+			return "map[" + GoType(t.Key()) + "]" + GoType(t.Elem())
+		}
 	}
 
 	return TypeString(s)
