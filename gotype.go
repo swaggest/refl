@@ -34,8 +34,9 @@ func GoType(t reflect.Type) TypeString {
 		s = pkgPath + "::" + t.String()
 	}
 
+	// nolint:exhaustive // This switch only looks into specific kind.
 	switch t.Kind() {
-	case reflect.Slice:
+	case reflect.Slice, reflect.Array:
 		if pkgPath == "" {
 			return "[]" + GoType(t.Elem())
 		}

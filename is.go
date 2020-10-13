@@ -75,6 +75,7 @@ func IsZero(v reflect.Value) bool {
 		return math.Float64bits(v.Float()) == 0
 	case reflect.Complex64, reflect.Complex128:
 		c := v.Complex()
+
 		return math.Float64bits(real(c)) == 0 && math.Float64bits(imag(c)) == 0
 	case reflect.Array:
 		for i := 0; i < v.Len(); i++ {
@@ -96,8 +97,10 @@ func IsZero(v reflect.Value) bool {
 		}
 
 		return true
+	case reflect.Invalid:
+		panic("reflect.Value.IsZero: " + v.Kind().String())
 	default:
-		// This should never happens, but will act as a safeguard for
+		// This should never happen, but will act as a safeguard for
 		// later, as a default value doesn't makes sense here.
 		panic("reflect.Value.IsZero: " + v.Kind().String())
 	}

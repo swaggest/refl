@@ -2,9 +2,25 @@ package refl
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
+)
+
+// SentinelError is a constant error.
+type SentinelError string
+
+// Error implements error.
+func (se SentinelError) Error() string {
+	return string(se)
+}
+
+// Sentinel errors.
+const (
+	ErrNeedPointer          = SentinelError("could not find field value in struct")
+	ErrMissingFieldValue    = SentinelError("can not take address of structure, please pass a pointer")
+	ErrMissingStructOrField = SentinelError("structPtr and fieldPtr are required")
 )
 
 // HasTaggedFields checks if the structure has fields with tag name.
@@ -71,7 +87,7 @@ func ReadBoolTag(tag reflect.StructTag, name string, holder *bool) error {
 	if ok {
 		v, err := strconv.ParseBool(value)
 		if err != nil {
-			return errors.New("failed to parse bool value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse bool value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = v
@@ -86,7 +102,7 @@ func ReadBoolPtrTag(tag reflect.StructTag, name string, holder **bool) error {
 	if ok {
 		v, err := strconv.ParseBool(value)
 		if err != nil {
-			return errors.New("failed to parse bool value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse bool value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = &v
@@ -119,6 +135,7 @@ func ReadStringPtrTag(tag reflect.StructTag, name string, holder **string) {
 	if ok {
 		if *holder != nil && **holder != "" && value == "-" {
 			*holder = nil
+
 			return
 		}
 
@@ -132,7 +149,7 @@ func ReadIntTag(tag reflect.StructTag, name string, holder *int64) error {
 	if ok {
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
-			return errors.New("failed to parse float value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse float value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = v
@@ -147,7 +164,7 @@ func ReadIntPtrTag(tag reflect.StructTag, name string, holder **int64) error {
 	if ok {
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
-			return errors.New("failed to parse int value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse int value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = &v
@@ -162,7 +179,7 @@ func ReadFloatTag(tag reflect.StructTag, name string, holder *float64) error {
 	if ok {
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
-			return errors.New("failed to parse float value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse float value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = v
@@ -177,7 +194,7 @@ func ReadFloatPtrTag(tag reflect.StructTag, name string, holder **float64) error
 	if ok {
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
-			return errors.New("failed to parse float value " + value + " in tag " + name + ": " + err.Error())
+			return fmt.Errorf("failed to parse float value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = &v
@@ -197,7 +214,7 @@ func JoinErrors(errs ...error) error {
 	}
 
 	if join != "" {
-		return errors.New(join[2:])
+		return errors.New(join[2:]) // nolint:goerr113
 	}
 
 	return nil
@@ -251,13 +268,13 @@ func PopulateFieldsFromTags(structPtr interface{}, fieldTag reflect.StructTag) e
 //   name, found := sm.FindTaggedName(&entity, &entity.UpdatedAt, "db")
 func FindTaggedName(structPtr, fieldPtr interface{}, tagName string) (string, error) {
 	if structPtr == nil || fieldPtr == nil {
-		return "", errors.New("structPtr and fieldPtr are required")
+		return "", ErrMissingStructOrField
 	}
 
 	v := reflect.Indirect(reflect.ValueOf(structPtr))
 
 	if !v.CanAddr() {
-		return "", errors.New("can not take address of structure, please pass a pointer")
+		return "", ErrNeedPointer
 	}
 
 	found := false
@@ -280,7 +297,7 @@ func FindTaggedName(structPtr, fieldPtr interface{}, tagName string) (string, er
 		return name, nil
 	}
 
-	return "", errors.New("could not find field value in struct")
+	return "", ErrMissingFieldValue
 }
 
 // Tagged will try to find tagged name and panic on error.
