@@ -1,6 +1,8 @@
 package refl_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -59,4 +61,62 @@ func TestIsZero(t *testing.T) {
 
 	assert.True(t, refl.IsZero(reflect.ValueOf(MyStruct{})))
 	assert.False(t, refl.IsZero(reflect.ValueOf(MyStruct{S: "s"})))
+}
+
+type doer interface {
+	Do()
+}
+
+type someDoer struct{ val string }
+
+func (someDoer) Do() {}
+
+type somePtrDoer struct{}
+
+func (*somePtrDoer) Do() {}
+
+func TestAs(t *testing.T) {
+	var (
+		v  interface{}
+		vv doer
+	)
+
+	sd := someDoer{val: "abc"}
+	vv = sd
+	v = vv
+	target := new(someDoer)
+
+	assert.True(t, refl.As(v, target))
+	assert.Equal(t, sd, *target)
+	assert.True(t, refl.As(v, new(doer)))
+
+	spd := &somePtrDoer{}
+	vv = spd
+	v = vv
+	targetP := new(somePtrDoer)
+
+	assert.True(t, refl.As(v, targetP))
+	assert.Equal(t, spd, targetP)
+
+	assert.False(t, refl.As(nil, target))
+	assert.False(t, refl.As(v, new(interface{ Unknown() })))
+	assert.Panics(t, func() {
+		refl.As(v, someDoer{})
+	})
+}
+
+func ExampleAs() {
+	var (
+		v  interface{}
+		vv json.Marshaler
+	)
+
+	vv = json.RawMessage(`{"abc":123}`)
+	v = vv
+
+	target := new(json.RawMessage)
+	fmt.Println(refl.As(v, target), string(*target))
+
+	// Output:
+	// true {"abc":123}
 }
