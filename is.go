@@ -96,7 +96,11 @@ func As(v interface{}, target interface{}) bool {
 		}
 
 		rvv = rvv.Elem()
-		rvt = rvt.Elem()
+		if rvv.Interface() == nil {
+			break
+		}
+
+		rvt = rvv.Type()
 	}
 
 	return false

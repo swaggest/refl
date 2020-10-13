@@ -98,6 +98,9 @@ func TestAs(t *testing.T) {
 	assert.True(t, refl.As(v, targetP))
 	assert.Equal(t, spd, targetP)
 
+	assert.False(t, refl.As("abc", new(doer)))
+	assert.False(t, refl.As(new(doer), new(json.Marshaler)))
+
 	assert.False(t, refl.As(nil, target))
 	assert.False(t, refl.As(v, new(interface{ Unknown() })))
 	assert.Panics(t, func() {
