@@ -2,6 +2,7 @@ package refl_test
 
 import (
 	"encoding/json"
+	"mime/multipart"
 	"reflect"
 	"testing"
 
@@ -121,4 +122,24 @@ func TestFindTaggedName(t *testing.T) {
 
 	assert.Equal(t, "data", refl.Tagged(&si, &si.Data, "json"))
 	assert.Equal(t, "deeper", refl.Tagged(&si.Data, &si.Data.Deeper, "json"))
+}
+
+func TestWalkTaggedFields(t *testing.T) {
+	type upload struct {
+		A struct {
+			B int `json:"b"`
+		} `formData:"a"`
+		Upload1 *multipart.FileHeader `formData:"upload1" description:"Upload with *multipart.FileHeader."`
+	}
+
+	var tags []string
+
+	refl.WalkTaggedFields(reflect.ValueOf(new(upload)), func(v reflect.Value, sf reflect.StructField, tag string) {
+		refl.WalkTaggedFields(v, func(v reflect.Value, sf reflect.StructField, tag string) {
+			tags = append(tags, tag)
+		}, "json")
+		tags = append(tags, tag)
+	}, "formData")
+
+	assert.Equal(t, []string{"b", "a", "upload1"}, tags)
 }
