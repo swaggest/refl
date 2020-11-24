@@ -55,8 +55,16 @@ func WalkTaggedFields(v reflect.Value, f WalkTaggedFieldFn, tagName string) {
 	}
 
 	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldVal := v.Field(i)
+		var (
+			field    = t.Field(i)
+			fieldVal reflect.Value
+		)
+
+		if v.IsValid() {
+			fieldVal = v.Field(i)
+		} else {
+			fieldVal = reflect.Zero(field.Type)
+		}
 
 		tag := field.Tag.Get(tagName)
 		tag = strings.Split(tag, ",")[0]
