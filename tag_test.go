@@ -109,6 +109,17 @@ func TestPopulateFieldsFromTags(t *testing.T) {
 	assert.Equal(t, false, *s.Required)
 }
 
+func BenchmarkPopulateFieldsFromTags(b *testing.B) {
+	s := schema{}
+	tag := reflect.TypeOf(value{}).Field(0).Tag
+
+	for i := 0; i < b.N; i++ {
+		if err := refl.PopulateFieldsFromTags(&s, tag); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func TestFindTaggedName(t *testing.T) {
 	se := structWithEmbedded{}
 
@@ -122,6 +133,35 @@ func TestFindTaggedName(t *testing.T) {
 
 	assert.Equal(t, "data", refl.Tagged(&si, &si.Data, "json"))
 	assert.Equal(t, "deeper", refl.Tagged(&si.Data, &si.Data.Deeper, "json"))
+}
+
+func BenchmarkFindTaggedName(b *testing.B) {
+	se := structWithEmbedded{}
+	si := structWithInline{}
+
+	b.Run("embedded", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			if a := refl.Tagged(&se, &se.A, "json"); a != "a" {
+				b.Fail()
+			}
+		}
+	})
+
+	b.Run("inline", func(b *testing.B) {
+		for i := 0; i <= b.N; i++ {
+			if data := refl.Tagged(&si, &si.Data, "json"); data != "data" {
+				b.Fail()
+			}
+		}
+	})
+
+	b.Run("deep-inline", func(b *testing.B) {
+		for i := 0; i <= b.N; i++ {
+			if deeper := refl.Tagged(&si.Data, &si.Data.Deeper, "json"); deeper != "deeper" {
+				b.Fail()
+			}
+		}
+	})
 }
 
 func TestWalkTaggedFields(t *testing.T) {
@@ -142,4 +182,21 @@ func TestWalkTaggedFields(t *testing.T) {
 	}, "formData")
 
 	assert.Equal(t, []string{"b", "a", "upload1"}, tags)
+}
+
+func BenchmarkWalkTaggedFields(b *testing.B) {
+	type upload struct {
+		A struct {
+			B int `json:"b"`
+		} `formData:"a"`
+		Upload1 *multipart.FileHeader `formData:"upload1" description:"Upload with *multipart.FileHeader."`
+	}
+
+	for i := 0; i < b.N; i++ {
+		refl.WalkTaggedFields(reflect.ValueOf(new(upload)), func(v reflect.Value, sf reflect.StructField, tag string) {
+			if tag != "a" && tag != "upload1" {
+				b.Fail()
+			}
+		}, "formData")
+	}
 }
