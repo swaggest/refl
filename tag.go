@@ -38,6 +38,7 @@ func HasTaggedFields(i interface{}, tagName string) bool {
 type WalkTaggedFieldFn func(v reflect.Value, sf reflect.StructField, tag string)
 
 // WalkTaggedFields iterates top level fields of structure including anonymous embedded fields.
+// If tagName is empty function is called for all top level fields.
 func WalkTaggedFields(v reflect.Value, f WalkTaggedFieldFn, tagName string) {
 	if v.Kind() == 0 {
 		return
@@ -81,7 +82,7 @@ func WalkTaggedFields(v reflect.Value, f WalkTaggedFieldFn, tagName string) {
 			continue
 		}
 
-		if tag == "" || tag == "-" {
+		if tagName != "" && (tag == "" || tag == "-") {
 			continue
 		}
 

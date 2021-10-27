@@ -28,7 +28,8 @@ type (
 	}
 
 	embedded struct {
-		A int `json:"a"`
+		A        int    `json:"a"`
+		Untagged string `json:"-"`
 	}
 
 	structWithInline struct {
@@ -182,6 +183,13 @@ func TestWalkTaggedFields(t *testing.T) {
 	}, "formData")
 
 	assert.Equal(t, []string{"b", "a", "upload1"}, tags)
+
+	var fields []string
+
+	refl.WalkTaggedFields(reflect.ValueOf(new(structWithIgnoredEmbedded)), func(v reflect.Value, sf reflect.StructField, tag string) {
+		fields = append(fields, sf.Name)
+	}, "")
+	assert.Equal(t, []string{"B", "A", "Untagged"}, fields)
 }
 
 func BenchmarkWalkTaggedFields(b *testing.B) {
