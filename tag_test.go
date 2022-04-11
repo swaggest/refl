@@ -208,3 +208,22 @@ func BenchmarkWalkTaggedFields(b *testing.B) {
 		}, "formData")
 	}
 }
+
+func TestPopulateFieldsFromTags_failed(t *testing.T) {
+	s := schema{}
+
+	type value struct {
+		Property string `title:"Value" desc:"..." min:"abc" max:"abc" limit:"a" offset:"b" deprecated:"c" required:"abc"`
+	}
+
+	tag := reflect.TypeOf(value{}).Field(0).Tag
+
+	assert.EqualError(t, refl.PopulateFieldsFromTags(&s, tag),
+		"failed to parse float value abc in tag min: strconv.ParseFloat: parsing \"abc\": invalid syntax, "+
+			"failed to parse float value abc in tag max: strconv.ParseFloat: parsing \"abc\": invalid syntax, "+
+			"failed to parse int value a in tag limit: strconv.ParseInt: parsing \"a\": invalid syntax, "+
+			"failed to parse int value b in tag offset: strconv.ParseInt: parsing \"b\": invalid syntax, "+
+			"failed to parse bool value c in tag deprecated: strconv.ParseBool: parsing \"c\": invalid syntax, "+
+			"failed to parse bool value abc in tag required: strconv.ParseBool: parsing \"abc\": invalid syntax")
+
+}

@@ -158,7 +158,7 @@ func ReadIntTag(tag reflect.StructTag, name string, holder *int64) error {
 	if ok {
 		v, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
-			return fmt.Errorf("failed to parse float value %s in tag %s: %w", value, name, err)
+			return fmt.Errorf("failed to parse int value %s in tag %s: %w", value, name, err)
 		}
 
 		*holder = v
