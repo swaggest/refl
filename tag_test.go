@@ -225,5 +225,4 @@ func TestPopulateFieldsFromTags_failed(t *testing.T) {
 			"failed to parse int value b in tag offset: strconv.ParseInt: parsing \"b\": invalid syntax, "+
 			"failed to parse bool value c in tag deprecated: strconv.ParseBool: parsing \"c\": invalid syntax, "+
 			"failed to parse bool value abc in tag required: strconv.ParseBool: parsing \"abc\": invalid syntax")
-
 }
