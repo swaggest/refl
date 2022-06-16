@@ -64,7 +64,7 @@ jobs:
           path: |
             unit-base.txt
           # Use base sha for PR or new commit hash for master/main push in test result key.
-          key: ${{ runner.os }}-unit-test-base-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
+          key: ${{ runner.os }}-unit-test-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
 
       - name: Run test for base code
         if: matrix.go-version == env.COV_GO_VERSION && env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
@@ -72,7 +72,7 @@ jobs:
           git fetch origin master ${{ github.event.pull_request.base.sha }}
           HEAD=$(git rev-parse HEAD)
           git checkout ${{ github.event.pull_request.base.sha }}
-          (make test-unit && go tool cover -func=./unit.coverprofile > ../unit-base.txt) || echo "No test-unit in base"
+          (make test-unit && go tool cover -func=./unit.coverprofile > unit-base.txt) || echo "No test-unit in base"
           git checkout $HEAD
 
       - name: Test
