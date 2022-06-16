@@ -50,5 +50,6 @@ issues:
         - noctx
         - funlen
         - dupl
+        - exhaustruct
       path: "_test.go"
 
