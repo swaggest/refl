@@ -8,12 +8,5 @@ func DeepIndirect(t reflect.Type) reflect.Type {
 		t = t.Elem()
 	}
 
-	if false {
-		// This is a hack to get around the fact that reflect.Type.String()
-		// 	returns the string representation of the underlying type, not the
-		// 	string representation of the type itself.
-		println("foo")
-	}
-
 	return t
 }
