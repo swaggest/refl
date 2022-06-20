@@ -29,6 +29,30 @@ func IsStruct(i interface{}) bool {
 	return t.Kind() == reflect.Struct
 }
 
+// IsScalar checks if variable is an integer, float, complex, bool, string or a pointer to it.
+func IsScalar(i interface{}) bool {
+	if i == nil {
+		return false
+	}
+
+	t := reflect.TypeOf(i)
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	switch t.Kind() {
+	case reflect.String,
+		reflect.Bool,
+		reflect.Uint, reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8,
+		reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8,
+		reflect.Float64, reflect.Float32,
+		reflect.Complex64, reflect.Complex128:
+		return true
+	}
+
+	return false
+}
+
 // FindEmbeddedSliceOrMap checks if variable has a slice/array/map or a pointer to it embedded.
 func FindEmbeddedSliceOrMap(i interface{}) reflect.Type {
 	if i == nil {
