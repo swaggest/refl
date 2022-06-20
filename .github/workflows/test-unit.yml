@@ -94,7 +94,6 @@ jobs:
           echo "${REP}"
           REP="${REP//$'\n'/%0A}"
           cat gha-unit.txt
-          test -e unit-base.txt && cat unit-base.txt
           DIFF=$(test -e unit-base.txt && ./gocovdiff -func-cov unit.txt -func-base-cov unit-base.txt || echo "Missing base coverage file")
           DIFF="${DIFF//$'\n'/%0A}"
           TOTAL=$(cat delta-cov-unit.txt)
