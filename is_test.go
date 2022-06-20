@@ -30,6 +30,19 @@ func TestIsStruct(t *testing.T) {
 	assert.False(t, refl.IsStruct(nil))
 }
 
+func TestIsScalar(t *testing.T) {
+	assert.True(t, refl.IsScalar(123))
+	assert.True(t, refl.IsScalar(new(int)))
+	assert.True(t, refl.IsScalar(123.4))
+	assert.True(t, refl.IsScalar(123.4i))
+	assert.True(t, refl.IsScalar(true))
+	assert.True(t, refl.IsScalar("abc"))
+	assert.True(t, refl.IsScalar(new(string)))
+	assert.False(t, refl.IsScalar(struct{}{}))
+	assert.False(t, refl.IsScalar(nil))
+	assert.False(t, refl.IsScalar(interface{ foo() }(nil)))
+}
+
 type Map map[int]int
 
 type S struct {
