@@ -226,3 +226,65 @@ func TestPopulateFieldsFromTags_failed(t *testing.T) {
 			"failed to parse bool value c in tag deprecated: strconv.ParseBool: parsing \"c\": invalid syntax, "+
 			"failed to parse bool value abc in tag required: strconv.ParseBool: parsing \"abc\": invalid syntax")
 }
+
+func TestWalkFieldsRecursively(t *testing.T) {
+	type Embed struct {
+		Quux float64 `default:"1.23"`
+	}
+
+	type DeeplyEmbedded struct {
+		*Embed
+	}
+
+	type S struct {
+		Foo    string `json:"foo" default:"abc"`
+		Deeper struct {
+			Bar    int `query:"bar" default:"123"`
+			Deeper struct {
+				Baz bool `default:"true"`
+			}
+		}
+		*DeeplyEmbedded
+	}
+
+	var (
+		defaults = map[string]string{}
+		visited  []string
+	)
+
+	refl.WalkFieldsRecursively(reflect.ValueOf(S{}), func(v reflect.Value, sf reflect.StructField, path []reflect.StructField) {
+		visited = append(visited, sf.Name)
+
+		var key string
+
+		for _, p := range path {
+			if p.Anonymous {
+				continue
+			}
+
+			if key == "" {
+				key = p.Name
+			} else {
+				key += "[" + p.Name + "]"
+			}
+		}
+
+		if key == "" {
+			key = sf.Name
+		} else {
+			key += "[" + sf.Name + "]"
+		}
+
+		if d, ok := sf.Tag.Lookup("default"); ok {
+			defaults[key] = d
+		}
+	})
+
+	assert.Equal(
+		t,
+		map[string]string{"Deeper[Bar]": "123", "Deeper[Deeper][Baz]": "true", "Foo": "abc", "Quux": "1.23"},
+		defaults,
+	)
+
+	assert.Equal(t, []string{"Foo", "Deeper", "Bar", "Deeper", "Baz", "DeeplyEmbedded", "Embed", "Quux"}, visited)
+}
