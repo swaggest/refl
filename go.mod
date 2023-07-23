@@ -3,7 +3,7 @@ module github.com/swaggest/refl
 go 1.17
 
 require (
-	github.com/bool64/dev v0.2.16
+	github.com/bool64/dev v0.2.29
 	github.com/stretchr/testify v1.4.0
 )
 
