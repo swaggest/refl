@@ -3,6 +3,7 @@ package refl_test
 import (
 	"encoding/json"
 	"mime/multipart"
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -245,6 +246,8 @@ func TestWalkFieldsRecursively(t *testing.T) {
 			}
 		}
 		*DeeplyEmbedded
+
+		req *http.Request // Unexported non-anonymous field is skipped.
 	}
 
 	var (
