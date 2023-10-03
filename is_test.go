@@ -3,6 +3,7 @@ package refl_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
 
@@ -135,4 +136,28 @@ func ExampleAs() {
 
 	// Output:
 	// true {"abc":123}
+}
+
+func TestNoEmptyFields(t *testing.T) {
+	type My struct {
+		Foo int
+		Bar string
+		Baz chan string
+	}
+
+	m := &My{
+		Foo: 123,
+		Bar: "abc",
+		Baz: make(chan string),
+	}
+
+	var v interface{} = m
+
+	require.NoError(t, refl.NoEmptyFields(v))
+
+	m.Foo = 0
+	m.Bar = ""
+
+	assert.EqualError(t, refl.NoEmptyFields(v), "missing: [Foo Bar]")
+	assert.EqualError(t, refl.NoEmptyFields(refl.SentinelError("")), "struct expected, refl.SentinelError received")
 }
