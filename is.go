@@ -141,7 +141,7 @@ func NoEmptyFields(l interface{}) error {
 	}
 
 	if v.Kind() != reflect.Struct {
-		return fmt.Errorf("struct expected, %s received", v.Type().String())
+		return fmt.Errorf("%w, %s received", ErrStructExpected, v.Type().String())
 	}
 
 	var missing []string
@@ -154,7 +154,7 @@ func NoEmptyFields(l interface{}) error {
 	}
 
 	if len(missing) > 0 {
-		return fmt.Errorf("missing: %v", missing)
+		return fmt.Errorf("%w: %v", ErrEmptyFields, missing)
 	}
 
 	return nil

@@ -3,11 +3,11 @@ package refl_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/swaggest/refl"
 	"github.com/swaggest/refl/internal/sample"
 )
@@ -158,6 +158,6 @@ func TestNoEmptyFields(t *testing.T) {
 	m.Foo = 0
 	m.Bar = ""
 
-	assert.EqualError(t, refl.NoEmptyFields(v), "missing: [Foo Bar]")
+	assert.EqualError(t, refl.NoEmptyFields(v), "empty fields: [Foo Bar]")
 	assert.EqualError(t, refl.NoEmptyFields(refl.SentinelError("")), "struct expected, refl.SentinelError received")
 }
