@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/swaggest/refl"
 	"github.com/swaggest/refl/internal/sample"
 )
@@ -135,4 +136,28 @@ func ExampleAs() {
 
 	// Output:
 	// true {"abc":123}
+}
+
+func TestNoEmptyFields(t *testing.T) {
+	type My struct {
+		Foo int
+		Bar string
+		Baz chan string
+	}
+
+	m := &My{
+		Foo: 123,
+		Bar: "abc",
+		Baz: make(chan string),
+	}
+
+	var v interface{} = m
+
+	require.NoError(t, refl.NoEmptyFields(v))
+
+	m.Foo = 0
+	m.Bar = ""
+
+	assert.EqualError(t, refl.NoEmptyFields(v), "empty fields: [Foo Bar]")
+	assert.EqualError(t, refl.NoEmptyFields(refl.SentinelError("")), "struct expected, refl.SentinelError received")
 }

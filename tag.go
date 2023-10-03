@@ -21,6 +21,8 @@ const (
 	ErrNeedPointer          = SentinelError("could not find field value in struct")
 	ErrMissingFieldValue    = SentinelError("can not take address of structure, please pass a pointer")
 	ErrMissingStructOrField = SentinelError("structPtr and fieldPtr are required")
+	ErrEmptyFields          = SentinelError("empty fields")
+	ErrStructExpected       = SentinelError("struct expected")
 )
 
 // HasTaggedFields checks if the structure has fields with tag name.
