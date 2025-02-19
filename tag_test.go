@@ -180,6 +180,7 @@ func TestWalkTaggedFields(t *testing.T) {
 		refl.WalkTaggedFields(v, func(v reflect.Value, sf reflect.StructField, tag string) {
 			tags = append(tags, tag)
 		}, "json")
+
 		tags = append(tags, tag)
 	}, "formData")
 
