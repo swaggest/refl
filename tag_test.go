@@ -93,7 +93,7 @@ type schema struct {
 }
 
 type value struct {
-	Property string `title:"Value" desc:"..." min:"-1.23" max:"10.1" limit:"5" offset:"2" deprecated:"true" required:"f"`
+	Property string `title:"Value" items.title:"Items Title" desc:"..." items.desc:"Items Desc" min:"-1.23" max:"10.1" limit:"5" offset:"2" deprecated:"true" required:"f"`
 }
 
 func TestPopulateFieldsFromTags(t *testing.T) {
@@ -109,6 +109,20 @@ func TestPopulateFieldsFromTags(t *testing.T) {
 	assert.Equal(t, int64(2), *s.Offset)
 	assert.Equal(t, true, s.Deprecated)
 	assert.Equal(t, false, *s.Required)
+
+	s = schema{}
+	require.NoError(t, refl.PopulateFieldsFromTags(&s, tag, func(o *refl.FieldsFromTagsOptions) {
+		o.TagPrefix = "items."
+	}))
+
+	assert.Equal(t, "Items Title", s.Title)
+	assert.Equal(t, "Items Desc", *s.Desc)
+	assert.Nil(t, s.Min)
+	assert.Empty(t, s.Max)
+	assert.Empty(t, s.Limit)
+	assert.Nil(t, s.Offset)
+	assert.Empty(t, s.Deprecated)
+	assert.Nil(t, s.Required)
 }
 
 func BenchmarkPopulateFieldsFromTags(b *testing.B) {
