@@ -301,16 +301,37 @@ func JoinErrors(errs ...error) error {
 	return nil
 }
 
+// FieldsFromTagsOptions controls advanced behavior of PopulateFieldsFromTags.
+type FieldsFromTagsOptions struct {
+	// TagPrefix adds a prefix to looked up tags, for example "items.".
+	TagPrefix string
+
+	// FieldToTag defines how Go field name is mapped into a tag name.
+	// Default is lowercasing first char.
+	FieldToTag func(field string) string
+}
+
 // PopulateFieldsFromTags extracts values from field tag and puts them in according property of structPtr.
-func PopulateFieldsFromTags(structPtr interface{}, fieldTag reflect.StructTag) error {
+func PopulateFieldsFromTags(structPtr interface{}, fieldTag reflect.StructTag, options ...func(o *FieldsFromTagsOptions)) error {
 	pv := reflect.ValueOf(structPtr).Elem()
 	pt := pv.Type()
 
 	var errs []error
 
+	opts := &FieldsFromTagsOptions{}
+	for _, option := range options {
+		option(opts)
+	}
+
+	if opts.FieldToTag == nil {
+		opts.FieldToTag = func(field string) string {
+			return strings.ToLower(field[0:1]) + field[1:]
+		}
+	}
+
 	for i := 0; i < pv.NumField(); i++ {
 		ptf := pt.Field(i)
-		tagName := strings.ToLower(ptf.Name[0:1]) + ptf.Name[1:]
+		tagName := opts.TagPrefix + opts.FieldToTag(ptf.Name)
 		pvf := pv.Field(i).Addr().Interface()
 
 		var err error
