@@ -295,7 +295,7 @@ func JoinErrors(errs ...error) error {
 	}
 
 	if join != "" {
-		return errors.New(join[2:]) //nolint:goerr113
+		return errors.New(join[2:]) //nolint:err113
 	}
 
 	return nil
